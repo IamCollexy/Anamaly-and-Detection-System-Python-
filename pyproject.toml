@@ -1,0 +1,17 @@
+[project]
+name = "finops-intelligence"
+version = "0.1.0"
+description = "Production-style Python learning project for transaction reconciliation"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = ["fastapi>=0.115,<1", "uvicorn[standard]>=0.30,<1", "pydantic-settings>=2.6,<3", "sqlalchemy>=2.0.36,<3", "psycopg[binary]>=3.2,<4", "alembic>=1.14,<2", "celery[redis]>=5.4,<6", "pandas>=2.2,<3", "numpy>=2.1,<3", "openai>=1.58,<2", "python-multipart>=0.0.18,<1", "openpyxl>=3.1,<4", "httpx>=0.28,<1"]
+[dependency-groups]
+dev = ["pytest>=8.3,<9", "pytest-asyncio>=0.24,<1", "ruff>=0.8,<1"]
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+asyncio_mode = "auto"
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B"]

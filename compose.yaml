@@ -1,0 +1,21 @@
+services:
+  postgres:
+    image: postgres:17-alpine
+    environment: {POSTGRES_DB: finops, POSTGRES_USER: finops, POSTGRES_PASSWORD: finops}
+    healthcheck: {test: ["CMD-SHELL", "pg_isready -U finops -d finops"], interval: 5s, timeout: 5s, retries: 10}
+  redis:
+    image: redis:7-alpine
+    healthcheck: {test: ["CMD", "redis-cli", "ping"], interval: 5s, timeout: 5s, retries: 10}
+  api:
+    build: .
+    env_file: .env
+    environment: {FINOPS_DATABASE_URL: postgresql+psycopg://finops:finops@postgres:5432/finops, FINOPS_REDIS_URL: redis://redis:6379/0}
+    depends_on: {postgres: {condition: service_healthy}, redis: {condition: service_healthy}}
+    ports: ["8000:8000"]
+    command: sh -c "alembic upgrade head && uvicorn app.main:app --host 0.0.0.0 --port 8000"
+  worker:
+    build: .
+    env_file: .env
+    environment: {FINOPS_DATABASE_URL: postgresql+psycopg://finops:finops@postgres:5432/finops, FINOPS_REDIS_URL: redis://redis:6379/0}
+    depends_on: {postgres: {condition: service_healthy}, redis: {condition: service_healthy}}
+    command: celery -A app.workers.celery_app worker --loglevel=INFO
